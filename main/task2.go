@@ -4,20 +4,27 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func main() {
 	str := "Kooooooordinata"
-	fmt.Println(compress(str))
-	str = "abcdefgh"
-	fmt.Println(compress(str))
-	str = "aaabbbbccccc"
-	fmt.Println(compress(str))
-	str = "aaabcd"
-	fmt.Println(compress(str))
-	str = "abcdddd"
-	fmt.Println(compress(str))
+	test(str)
 
+	str = "abcdefgh"
+	test(str)
+
+	str = "aaabbbbccccc"
+	test(str)
+
+	str = "aaabcd"
+	test(str)
+
+	str = "abcdddd"
+	test(str)
+
+	str = "aaabbbaaaabbbbaaaaabbbbb"
+	test(str)
 }
 
 func compress(str string) string {
@@ -29,11 +36,16 @@ func compress(str string) string {
 		if c == prev {
 			count++
 		} else {
-			if count > 1 {
+			if count > 3 {
 				compressed = append(compressed, fmt.Sprintf("#%s#", strconv.Itoa(count)))
+				compressed = append(compressed, string(prev))
+				count = 1
+			} else {
+				for j := 0; j < count; j++ {
+					compressed = append(compressed, string(prev))
+				}
 				count = 1
 			}
-			compressed = append(compressed, string(prev))
 		}
 		prev = c
 	}
@@ -43,4 +55,61 @@ func compress(str string) string {
 	}
 	compressed = append(compressed, string(prev))
 	return strings.Join(compressed, "")
+}
+
+func decompress(str string) string {
+	count := 1
+	var strCount, rv string
+	isCount := false
+	prev := rune(str[0])
+	for i := 1; i < len(str); i++ {
+		c := rune(str[i])
+		if prev == '#' && unicode.IsDigit(c) {
+			strCount += string(c)
+			isCount = true
+		} else if isCount && unicode.IsDigit(c) {
+			strCount += string(prev)
+		} else if isCount && unicode.IsDigit(prev) && c == '#' {
+			isCount = false
+		}
+
+		if !isCount {
+			if prev == '#' {
+				prev = c
+				continue
+			}
+			if strCount == "" {
+				for i := 0; i < count; i++ {
+					rv += string(prev)
+				}
+				count = 1
+				isCount = false
+			} else {
+				count, _ = strconv.Atoi(strCount)
+				strCount = ""
+			}
+		}
+		prev = c
+	}
+	if !isCount {
+		if strCount == "" {
+			for i := 0; i < count; i++ {
+				rv += string(prev)
+			}
+		}
+	}
+	return rv
+}
+
+func test(str string) {
+	fmt.Println("Original    ", str)
+	compressed := compress(str)
+	fmt.Println("Compressed  ", compressed)
+	decompressed := decompress(str)
+	fmt.Println("decompressed", decompressed)
+	if str == decompressed {
+		fmt.Println("PASSED")
+	} else {
+		fmt.Println("FAILED")
+	}
 }
