@@ -61,8 +61,8 @@ func getKey(text string, keyWords []string) (int, error) {
 	}
 
 	found := false
-	key := -1
-	globalKey := -1
+	key := 0
+	globalKey := 0
 	keyMap := make(map[int]int)
 
 	for _, keyWord := range keyWords {
@@ -76,7 +76,7 @@ func getKey(text string, keyWords []string) (int, error) {
 				if found && shifted == rune(keyWord[i]) {
 					continue
 				} else {
-					key = -1
+					key = 0
 					if found {
 						found = false
 						break
@@ -113,14 +113,14 @@ func getKey(text string, keyWords []string) (int, error) {
 
 	for key, keyCount := range keyMap {
 		if keyCount >= len(keyWords) {
-			if globalKey == -1 {
+			if globalKey == 0 {
 				globalKey = key
 			} else {
 				return 0, errors.New("there are more than one keys were found")
 			}
 		}
 	}
-	if globalKey == -1 {
+	if globalKey == 0 {
 		fmt.Println(globalKey)
 
 		return 0, errors.New("key was not found")
