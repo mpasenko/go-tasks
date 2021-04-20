@@ -25,6 +25,12 @@ func main() {
 
 	str = "aaabbbaaaabbbbaaaaabbbbb"
 	test(str)
+
+	str = "aaaa"
+	test(str)
+
+	str = "aaaaa"
+	test(str)
 }
 
 func compress(str string) string {
@@ -36,7 +42,7 @@ func compress(str string) string {
 		if c == prev {
 			count++
 		} else {
-			if count > 3 {
+			if count > 4 {
 				compressed = append(compressed, fmt.Sprintf("#%s#", strconv.Itoa(count)))
 				compressed = append(compressed, string(prev))
 				count = 1
@@ -49,9 +55,12 @@ func compress(str string) string {
 		}
 		prev = c
 	}
-	if count > 1 {
+	if count > 4 {
 		compressed = append(compressed, fmt.Sprintf("#%s#", strconv.Itoa(count)))
-		count = 1
+	} else {
+		for j := 0; j < count-1; j++ {
+			compressed = append(compressed, string(prev))
+		}
 	}
 	compressed = append(compressed, string(prev))
 	return strings.Join(compressed, "")
